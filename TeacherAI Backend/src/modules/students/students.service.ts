@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose'; 
 import { Student, StudentDocument } from './schemas/student.schema';
@@ -7,7 +7,7 @@ import { Attendance, AttendanceDocument } from '../attendance/schemas/attendance
 import { Payment, PaymentDocument } from '../payments/schemas/payment.schema';
 import { Exam, ExamDocument } from '../exams/schemas/exam.schema';
 import { Result, ResultDocument } from '../exams/schemas/result.schema';
-import { Teacher, TeacherDocument } from '../auth/schemas/teacher.schema'; // 🚀 Teacher Schema ইম্পোর্ট করা হয়েছে
+import { Teacher, TeacherDocument } from '../auth/schemas/teacher.schema'; 
 import * as puppeteer from 'puppeteer'; 
 import * as QRCode from 'qrcode'; 
 
@@ -20,8 +20,49 @@ export class StudentsService {
     @InjectModel(Payment.name) private paymentModel: Model<PaymentDocument>,
     @InjectModel(Exam.name) private examModel: Model<ExamDocument>,
     @InjectModel(Result.name) private resultModel: Model<ResultDocument>,
-    @InjectModel(Teacher.name) private teacherModel: Model<TeacherDocument> // 🚀 Teacher Model ইনজেক্ট করা হয়েছে
+    @InjectModel(Teacher.name) private teacherModel: Model<TeacherDocument>
   ) {}
+
+  // ------------------------------------------------------------------
+  // 🚀 CORE FIX: ID Generation Logic (Always MAX + 1)
+  // ------------------------------------------------------------------
+  async generateStudentId(batchId: string, year: string, teacherId: string) {
+    const batch = await this.batchModel.findOne({ 
+      _id: new Types.ObjectId(batchId), 
+      teacherId: new Types.ObjectId(teacherId) 
+    } as any).exec();
+    
+    if (!batch) throw new NotFoundException('Batch not found');
+    
+    let batchCode = (batch as any).batchCode;
+    if (!batchCode) {
+      const batchName = (batch as any).name || '';
+      const words = batchName.trim().split(/\s+/);
+      batchCode = words.length >= 2 ? (words[0][0] + words[1][0]).toUpperCase() : batchName.substring(0, 2).toUpperCase();
+    }
+    
+    // 💡 FIXED: Added 'as any' to avoid TypeScript overload error
+    const studentsInBatch = await this.studentModel.find({ 
+      batchId: new Types.ObjectId(batchId), 
+      teacherId: new Types.ObjectId(teacherId) 
+    } as any).select('studentId').exec();
+
+    let maxSerial = 0;
+    
+    studentsInBatch.forEach(student => {
+      if (student.studentId) {
+        const parts = student.studentId.split('-');
+        const serialStr = parts[parts.length - 1]; 
+        const serialNum = parseInt(serialStr, 10);
+        if (!isNaN(serialNum) && serialNum > maxSerial) {
+          maxSerial = serialNum;
+        }
+      }
+    });
+
+    const nextSerial = maxSerial + 1;
+    return `${batchCode}-${year}-${nextSerial.toString().padStart(3, '0')}`;
+  }
 
   async getStudentProfile(studentId: string, teacherId: string) {
     const sId = new Types.ObjectId(studentId);
@@ -137,7 +178,6 @@ export class StudentsService {
     const profile = await this.getStudentProfile(studentId, teacherId);
     const { basicInfo, summary, paymentHistory, examHistory, attendanceHistory } = profile;
 
-    // 🚀 টিচারের ডাটা ফেচ করা হচ্ছে যাতে ব্র্যান্ডিং ডাইনামিক হয়
     const teacher = await this.teacherModel.findById(new Types.ObjectId(teacherId)).exec();
     const instName = teacher?.instituteName || 'ACADEMIC COACHING';
     const signatureUrl = teacher?.signature || '';
@@ -187,8 +227,6 @@ export class StudentsService {
           td { padding: 10px; border-bottom: 1px solid #f1f5f9; color: #1e293b; }
           .section-title { font-size: 16px; font-weight: bold; color: #312e81; text-transform: uppercase; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
           .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px;}
-          
-          /* 🚀 নতুন ফুটার স্টাইল */
           .footer-section { margin-top: 50px; display: flex; flex-direction: column; align-items: flex-end; }
           .signature-box { text-align: center; min-width: 180px; }
           .signature-img { max-height: 60px; max-width: 150px; margin-bottom: 5px; }
@@ -308,21 +346,6 @@ export class StudentsService {
     return await newStudent.save();
   }
 
-  async generateStudentId(batchId: string, year: string, teacherId: string) {
-    const batch = await this.batchModel.findOne({ _id: new Types.ObjectId(batchId), teacherId: new Types.ObjectId(teacherId) } as any).exec();
-    if (!batch) throw new NotFoundException('Batch not found');
-    
-    let batchCode = (batch as any).batchCode;
-    if (!batchCode) {
-      const batchName = (batch as any).name || '';
-      const words = batchName.trim().split(/\s+/);
-      batchCode = words.length >= 2 ? (words[0][0] + words[1][0]).toUpperCase() : batchName.substring(0, 2).toUpperCase();
-    }
-    
-    const count = await this.studentModel.countDocuments({ batchId: new Types.ObjectId(batchId), teacherId: new Types.ObjectId(teacherId) } as any);
-    return `${batchCode}-${year}-${(count + 1).toString().padStart(3, '0')}`;
-  }
-
   async assignToBatch(studentIds: string[], batchId: string, teacherId: string) {
     let modifiedCount = 0;
     for (const id of studentIds) {
@@ -349,7 +372,8 @@ export class StudentsService {
     const query: any = { teacherId: new Types.ObjectId(teacherId) };
     if (batchId) query.batchId = new Types.ObjectId(batchId);
     if (activeOnly) query.status = { $in: ['Active', 'active'] };
-    return await this.studentModel.find(query).populate('batchId', 'name').sort({ studentId: 1 }).exec();
+    // 💡 FIXED: Added 'as any' to the query here too
+    return await this.studentModel.find(query as any).populate('batchId', 'name').sort({ studentId: 1 }).exec();
   }
 
   async findOne(id: string, teacherId: string) {
@@ -396,5 +420,53 @@ export class StudentsService {
     const deletedStudent = await this.studentModel.findOneAndDelete({ _id: new Types.ObjectId(id), teacherId: new Types.ObjectId(teacherId) } as any).exec();
     if (!deletedStudent) throw new NotFoundException('Student not found');
     return { message: 'Student removed successfully' };
+  }
+
+  // ------------------------------------------------------------------
+  // 🚀 CORE FEATURE: Robust Batch Transfer (Always MAX Serial + 1)
+  // ------------------------------------------------------------------
+  async transferBatch(studentId: string, newBatchId: string, teacherId: string) {
+    const student = await this.studentModel.findOne({ _id: new Types.ObjectId(studentId), teacherId: new Types.ObjectId(teacherId) } as any).exec();
+    if (!student) throw new NotFoundException('Student not found');
+
+    const targetBatch = await this.batchModel.findOne({ _id: new Types.ObjectId(newBatchId), teacherId: new Types.ObjectId(teacherId) } as any).exec();
+    if (!targetBatch) throw new NotFoundException('Target batch not found');
+
+    const currentBatchId = student.batchId ? String(student.batchId) : null;
+    
+    if (currentBatchId === newBatchId) {
+      throw new BadRequestException('Student is already in this batch');
+    }
+
+    const admissionYear = new Date(student.admissionDate || Date.now()).getFullYear().toString();
+    const newStudentIdCode = await this.generateStudentId(newBatchId, admissionYear, teacherId);
+    
+    const oldStudentIdCode = student.studentId;
+
+    const historyRecord = {
+      fromBatchId: currentBatchId ? new Types.ObjectId(currentBatchId) : null,
+      toBatchId: new Types.ObjectId(newBatchId),
+      oldStudentId: oldStudentIdCode,
+      newStudentId: newStudentIdCode,
+      transferDate: new Date().toISOString()
+    };
+
+    const updatedStudent = await this.studentModel.findOneAndUpdate(
+      { _id: new Types.ObjectId(studentId) } as any,
+      { 
+        $set: { 
+          batchId: new Types.ObjectId(newBatchId), 
+          studentId: newStudentIdCode 
+        },
+        $push: { transferHistory: historyRecord } 
+      },
+      { new: true }
+    ).populate('batchId').exec();
+
+    return { 
+      success: true, 
+      message: 'Student transferred successfully',
+      student: updatedStudent
+    };
   }
 }

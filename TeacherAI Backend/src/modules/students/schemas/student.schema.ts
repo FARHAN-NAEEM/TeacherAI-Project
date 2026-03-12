@@ -32,9 +32,24 @@ export class Student {
   @Prop({ required: true, enum: ['Active', 'Deactive'], default: 'Active' })
   status: string;
 
-  // 🚀 নতুন: স্টুডেন্ট প্রোফাইলের ছবির জন্য ফিল্ড যুক্ত করা হলো
+  // স্টুডেন্ট প্রোফাইলের ছবির জন্য ফিল্ড যুক্ত করা হলো
   @Prop({ required: false, default: '' })
   photo: string;
+
+  // ------------------------------------------------------------------
+  // 🚀 NEW: Batch Transfer History Tracking (Good Practice Implementation)
+  // ------------------------------------------------------------------
+  @Prop({
+    type: [{
+      fromBatchId: { type: MongooseSchema.Types.ObjectId, ref: 'Batch' },
+      toBatchId: { type: MongooseSchema.Types.ObjectId, ref: 'Batch' },
+      oldStudentId: { type: String }, // পুরোনো ব্যাচের ID
+      newStudentId: { type: String }, // নতুন ব্যাচের ID
+      transferDate: { type: String, default: () => new Date().toISOString() } // কবে ট্রান্সফার হলো
+    }],
+    default: []
+  })
+  transferHistory: any[];
 }
 
 export const StudentSchema = SchemaFactory.createForClass(Student);

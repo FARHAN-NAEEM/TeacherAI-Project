@@ -4,14 +4,14 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import type { Response } from 'express'; // 🚀 FIX: 'import type' ব্যবহার করা হয়েছে
+import type { Response } from 'express'; 
 
 @Controller('students')
 @UseGuards(JwtAuthGuard)
 export class StudentsController {
   constructor(private readonly studentsService: StudentsService) {}
 
-  // 🚀 স্টুডেন্ট ফটো আপলোড এন্ডপয়েন্ট
+  // স্টুডেন্ট ফটো আপলোড এন্ডপয়েন্ট
   @Patch(':id/upload-photo')
   @UseInterceptors(FileInterceptor('photo', {
     storage: diskStorage({
@@ -32,7 +32,7 @@ export class StudentsController {
   async uploadPhoto(@Param('id') id: string, @UploadedFile() file: Express.Multer.File, @Request() req) {
     if (!file) throw new BadRequestException('কোনো ফাইল সিলেক্ট করা হয়নি!');
     
-    // ✅ ডাইনামিক ইউআরএল তৈরি (এটি লোকাল বা সার্ভার সব জায়গায় কাজ করবে)
+    // ডাইনামিক ইউআরএল তৈরি (এটি লোকাল বা সার্ভার সব জায়গায় কাজ করবে)
     const protocol = req.protocol;
     const host = req.get('host');
     const photoUrl = `${protocol}://${host}/uploads/${file.filename}`;
@@ -78,23 +78,19 @@ export class StudentsController {
     return this.studentsService.getStudentProfile(id, teacherId);
   }
 
-  // 🚀 FIX (Issue 1): Backend PDF Download Endpoint
   @Get(':id/report')
   async downloadStudentReport(@Param('id') id: string, @Request() req, @Res() res: Response) {
     const teacherId = req.user?.userId || req.user?.id;
     
     try {
-      // সার্ভিস থেকে PDF Buffer তৈরি করে আনা হচ্ছে
       const pdfBuffer = await this.studentsService.generateStudentReportPdf(id, teacherId);
       
-      // Response Headers সেট করা হচ্ছে যাতে ব্রাউজার সরাসরি ডাউনলোড করে
       res.set({
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="student-report-${id}.pdf"`,
         'Content-Length': pdfBuffer.length,
       });
 
-      // Buffer সেন্ড করা হচ্ছে
       res.end(pdfBuffer);
     } catch (error) {
       res.status(500).json({ message: 'Failed to generate PDF report', error: error.message });
@@ -123,5 +119,21 @@ export class StudentsController {
   remove(@Param('id') id: string, @Request() req) {
     const teacherId = req.user?.userId || req.user?.id;
     return this.studentsService.remove(id, teacherId);
+  }
+
+  // ------------------------------------------------------------------
+  // 🚀 NEW FEATURE: API Endpoint for Batch Transfer
+  // ------------------------------------------------------------------
+  @Post(':id/transfer')
+  async transferStudentBatch(
+    @Param('id') studentId: string, 
+    @Body('newBatchId') newBatchId: string, 
+    @Request() req
+  ) {
+    if (!newBatchId) {
+      throw new BadRequestException('Target batch ID is required');
+    }
+    const teacherId = req.user?.userId || req.user?.id;
+    return this.studentsService.transferBatch(studentId, newBatchId, teacherId);
   }
 }

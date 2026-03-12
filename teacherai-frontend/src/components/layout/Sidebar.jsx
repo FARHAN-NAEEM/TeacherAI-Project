@@ -6,13 +6,15 @@ function Sidebar() {
   const menuItems = [
     { name: 'Dashboard', path: '/dashboard', icon: '📊' },
     { name: 'Batches', path: '/batches', icon: '📚' },
+    { name: 'Batch Transfer', path: '/batch-transfer', icon: '🔀' }, 
     { name: 'Students', path: '/students', icon: '🎓' },
+    { name: 'ID Cards', path: '/id-cards', icon: '🪪' }, 
     { name: 'Attendance', path: '/attendance', icon: '📝' },
     { name: 'History', path: '/attendance-history', icon: '⏳' }, 
     { name: 'Exams', path: '/exams', icon: '📋' },
     { name: 'Results', path: '/results', icon: '🏆' },
     { name: 'Payments', path: '/payments', icon: '💰' },
-    { name: 'Finances', path: '/finances', icon: '💳' }, // 🚀 নতুন Finances মেনু যোগ করা হলো
+    { name: 'Finances', path: '/finances', icon: '💳' }, 
     { name: 'Settings', path: '/settings', icon: '⚙️' },
   ];
 

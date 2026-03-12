@@ -5,7 +5,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Batches from './pages/Batches';
 import Students from './pages/Students';
-// 🚀 নতুন: Student Profile ইমপোর্ট করা হলো
+// 🚀 Student Profile ইমপোর্ট করা হলো
 import StudentProfile from './pages/StudentProfile'; 
 import Attendance from './pages/Attendance';
 import AttendanceHistory from './pages/AttendanceHistory';
@@ -15,6 +15,12 @@ import Exams from './pages/Exams';
 import ExamResults from './pages/ExamResultsNew.jsx';
 import ResultManagement from './pages/ResultManagement.jsx'; 
 import Finances from './pages/Finances.jsx';
+
+// ID Cards Generate Route
+import IdCards from './pages/IdCards.jsx';
+
+// 🚀 নতুন: Batch Transfer পেজ ইমপোর্ট করা হলো
+import BatchTransfer from './pages/BatchTransfer.jsx';
 
 import DashboardLayout from './components/layout/DashboardLayout';
 
@@ -33,7 +39,7 @@ function App() {
           <Route path="/batches" element={<Batches />} />
           <Route path="/students" element={<Students />} />
           
-          {/* 🚀 নতুন: Student Profile Route */}
+          {/* Student Profile Route */}
           <Route path="/students/:id/profile" element={<StudentProfile />} />
           
           <Route path="/attendance" element={<Attendance />} />
@@ -48,6 +54,12 @@ function App() {
           
           {/* Financial Dashboard Route */}
           <Route path="/finances" element={<Finances />} />
+
+          {/* ID Cards Generate Route */}
+          <Route path="/id-cards" element={<IdCards />} />
+
+          {/* 🚀 নতুন: Batch Transfer Route */}
+          <Route path="/batch-transfer" element={<BatchTransfer />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/dashboard" />} />
