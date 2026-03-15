@@ -21,7 +21,7 @@ export class Teacher extends Document {
   role: string;
 
   // -----------------------------------------------------
-  // 🏫 EXISTING FIELDS (কোনো পরিবর্তন করা হয়নি)
+  // 🏫 EXISTING FIELDS (কোনো পরিবর্তন করা হয়নি)
   // -----------------------------------------------------
   @Prop({ default: 'TeacherAI Institute' })
   instituteName: string;
@@ -33,36 +33,43 @@ export class Teacher extends Document {
   profilePicture: string;
 
   // -----------------------------------------------------
-  // 🚀 NEW: INSTITUTION BRANDING FIELDS (নতুন অ্যাড করা হলো)
+  // 🚀 INSTITUTION BRANDING FIELDS
   // -----------------------------------------------------
-  
-  // প্রতিষ্ঠানের ছোট নাম (যেমন: FA)
   @Prop({ default: '' })
   shortName: string;
 
-  // প্রতিষ্ঠান কবে তৈরি হয়েছে
   @Prop({ default: '' })
   establishedYear: string;
 
-  // প্রতিষ্ঠানের ঠিকানা
   @Prop({ default: '' })
   address: string;
 
-  // যোগাযোগের ইমেইল (লগইন ইমেইল থেকে আলাদা হতে পারে)
   @Prop({ default: '' })
   institutionEmail: string;
 
-  // ওয়েবসাইট URL
   @Prop({ default: '' })
   website: string;
 
-  // লোগো স্টোর করার জন্য (Base64 বা Image URL)
   @Prop({ default: '' })
   logo: string;
 
-  // সিগনেচার বাই-ডিফল্ট সার্টিফিকেটে ব্যবহার হবে কিনা
   @Prop({ default: true })
   useSignatureAsDefault: boolean;
+
+  // -----------------------------------------------------
+  // 🚀 NEW: SMS GATEWAY SETTINGS (API Credentials)
+  // -----------------------------------------------------
+  @Prop({ default: 'none' }) // Options: 'sslwireless', 'bulksms', 'none'
+  smsProvider: string;
+
+  @Prop({ default: '' })
+  smsApiKey: string;
+
+  @Prop({ default: '' })
+  smsSenderId: string;
+
+  @Prop({ default: '' })
+  smsClientId: string; // Required for some APIs like SSL Wireless
 }
 
 export const TeacherSchema = SchemaFactory.createForClass(Teacher);

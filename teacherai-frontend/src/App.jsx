@@ -5,7 +5,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Batches from './pages/Batches';
 import Students from './pages/Students';
-// 🚀 Student Profile ইমপোর্ট করা হলো
+// Student Profile ইমপোর্ট করা হলো
 import StudentProfile from './pages/StudentProfile'; 
 import Attendance from './pages/Attendance';
 import AttendanceHistory from './pages/AttendanceHistory';
@@ -19,8 +19,11 @@ import Finances from './pages/Finances.jsx';
 // ID Cards Generate Route
 import IdCards from './pages/IdCards.jsx';
 
-// 🚀 নতুন: Batch Transfer পেজ ইমপোর্ট করা হলো
+// Batch Transfer পেজ ইমপোর্ট করা হলো
 import BatchTransfer from './pages/BatchTransfer.jsx';
+
+// 🚀 নতুন: SMS Center পেজ ইমপোর্ট করা হলো
+import SmsCenter from './pages/SmsCenter.jsx';
 
 import DashboardLayout from './components/layout/DashboardLayout';
 
@@ -58,8 +61,11 @@ function App() {
           {/* ID Cards Generate Route */}
           <Route path="/id-cards" element={<IdCards />} />
 
-          {/* 🚀 নতুন: Batch Transfer Route */}
+          {/* Batch Transfer Route */}
           <Route path="/batch-transfer" element={<BatchTransfer />} />
+
+          {/* 🚀 নতুন: SMS Center Route */}
+          <Route path="/sms-center" element={<SmsCenter />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/dashboard" />} />

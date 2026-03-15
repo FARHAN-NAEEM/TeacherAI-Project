@@ -15,6 +15,7 @@ function Sidebar() {
     { name: 'Results', path: '/results', icon: '🏆' },
     { name: 'Payments', path: '/payments', icon: '💰' },
     { name: 'Finances', path: '/finances', icon: '💳' }, 
+    { name: 'SMS Center', path: '/sms-center', icon: '💬' }, // 🚀 নতুন SMS Center মেনু যোগ করা হলো
     { name: 'Settings', path: '/settings', icon: '⚙️' },
   ];
 
