@@ -22,8 +22,11 @@ import IdCards from './pages/IdCards.jsx';
 // Batch Transfer পেজ ইমপোর্ট করা হলো
 import BatchTransfer from './pages/BatchTransfer.jsx';
 
-// 🚀 নতুন: SMS Center পেজ ইমপোর্ট করা হলো
+// SMS Center পেজ ইমপোর্ট করা হলো
 import SmsCenter from './pages/SmsCenter.jsx';
+
+// 🚀 নতুন: OMR Generator পেজ ইমপোর্ট করা হলো
+import OmrGenerator from './pages/OmrGenerator.jsx';
 
 import DashboardLayout from './components/layout/DashboardLayout';
 
@@ -64,8 +67,11 @@ function App() {
           {/* Batch Transfer Route */}
           <Route path="/batch-transfer" element={<BatchTransfer />} />
 
-          {/* 🚀 নতুন: SMS Center Route */}
+          {/* SMS Center Route */}
           <Route path="/sms-center" element={<SmsCenter />} />
+
+          {/* 🚀 নতুন: OMR Generator Route */}
+          <Route path="/omr-generator" element={<OmrGenerator />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/dashboard" />} />

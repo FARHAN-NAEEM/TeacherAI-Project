@@ -14,13 +14,13 @@ import {
   Trash2,
   ArrowRight,
   ShieldCheck,
-  Save
+  Save,
+  RadioTower
 } from 'lucide-react';
 
 function SmsCenter() {
   const [activeTab, setActiveTab] = useState('send'); 
   
-  // States for Send SMS Tab
   const [batches, setBatches] = useState([]);
   const [selectedBatch, setSelectedBatch] = useState('');
   const [smsType, setSmsType] = useState('custom'); 
@@ -28,18 +28,15 @@ function SmsCenter() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   
-  // States for History Tab
   const [smsHistory, setSmsHistory] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
 
-  // States for Templates Tab
   const [templates, setTemplates] = useState([]);
   const [loadingTemplates, setLoadingTemplates] = useState(false);
   const [newTemplateTitle, setNewTemplateTitle] = useState('');
   const [newTemplateContent, setNewTemplateContent] = useState('');
   const [creatingTemplate, setCreatingTemplate] = useState(false);
 
-  // 🚀 States for Settings Tab
   const [gateway, setGateway] = useState({
     smsProvider: 'none',
     smsApiKey: '',
@@ -52,7 +49,6 @@ function SmsCenter() {
   const [toast, setToast] = useState({ show: false, text: '', type: '' });
   const token = localStorage.getItem('teacherToken');
 
-  // Load Batches
   useEffect(() => {
     fetch('http://localhost:3000/api/v1/batches', {
       headers: { 'Authorization': `Bearer ${token}` }
@@ -62,7 +58,6 @@ function SmsCenter() {
       .catch(err => console.error(err));
   }, [token]);
 
-  // Load Data when tab changes
   useEffect(() => {
     if (activeTab === 'history') {
       fetchHistory();
@@ -105,7 +100,6 @@ function SmsCenter() {
       });
   };
 
-  // 🚀 Fetch Gateway Settings
   const fetchGatewaySettings = () => {
     setLoadingGateway(true);
     fetch('http://localhost:3000/api/v1/sms/settings', {
@@ -142,7 +136,6 @@ function SmsCenter() {
     }
   };
 
-  // SEND SMS
   const handleSendSms = async (e) => {
     e.preventDefault();
     if (!selectedBatch || !message) return;
@@ -179,7 +172,6 @@ function SmsCenter() {
     }
   };
 
-  // CREATE TEMPLATE
   const handleCreateTemplate = async (e) => {
     e.preventDefault();
     if (!newTemplateTitle || !newTemplateContent) return;
@@ -214,7 +206,6 @@ function SmsCenter() {
     }
   };
 
-  // DELETE TEMPLATE
   const handleDeleteTemplate = async (id) => {
     if(!window.confirm("Are you sure you want to delete this template?")) return;
 
@@ -236,14 +227,12 @@ function SmsCenter() {
     }
   };
 
-  // USE TEMPLATE
   const handleUseTemplate = (content) => {
     setMessage(content);
     setActiveTab('send');
     showToast('Template loaded into message box', 'success');
   };
 
-  // 🚀 SAVE GATEWAY SETTINGS
   const handleSaveGateway = async (e) => {
     e.preventDefault();
     setSavingGateway(true);
@@ -276,7 +265,6 @@ function SmsCenter() {
   return (
     <div className="p-6 md:p-8 bg-[#F8FAFC] min-h-screen relative pb-24">
       
-      {/* TOAST NOTIFICATION */}
       {toast.show && (
         <div className="fixed top-8 right-8 z-50 animate-in slide-in-from-right-8 fade-in duration-300">
           <div className={`px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border ${
@@ -294,7 +282,6 @@ function SmsCenter() {
 
       <div className="max-w-[1200px] mx-auto">
         
-        {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
              <span className="bg-gradient-to-br from-indigo-500 to-purple-600 p-2.5 rounded-xl shadow-lg shadow-indigo-200">
@@ -305,7 +292,6 @@ function SmsCenter() {
           <p className="text-slate-500 font-medium mt-2 ml-12">Send announcements, payment reminders, and exam results via SMS.</p>
         </div>
 
-        {/* TAB NAVIGATION */}
         <div className="flex flex-wrap gap-2 mb-8 bg-white p-2 rounded-2xl shadow-sm border border-slate-100 w-max">
           <button onClick={() => setActiveTab('send')} className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all ${activeTab === 'send' ? 'bg-indigo-50 text-indigo-700' : 'text-slate-500 hover:bg-slate-50'}`}>
             <Send className="w-4 h-4" /> Send SMS
@@ -321,7 +307,6 @@ function SmsCenter() {
           </button>
         </div>
 
-        {/* ================= TAB 1: SEND SMS ================= */}
         {activeTab === 'send' && (
            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
@@ -410,7 +395,6 @@ function SmsCenter() {
               </form>
             </div>
 
-            {/* Live Preview Side Panel */}
             <div className="lg:col-span-1">
               <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden sticky top-6">
                  <div className="bg-slate-900 p-4 text-center">
@@ -434,7 +418,6 @@ function SmsCenter() {
           </div>
         )}
 
-        {/* ================= TAB 2: SMS HISTORY ================= */}
         {activeTab === 'history' && (
           <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
             <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
@@ -501,9 +484,9 @@ function SmsCenter() {
           </div>
         )}
 
-        {/* ================= TAB 3: TEMPLATES ================= */}
         {activeTab === 'templates' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
             <div className="lg:col-span-1">
               <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden sticky top-6">
                 <div className="p-6 border-b border-slate-100 bg-slate-50/50">
@@ -589,7 +572,6 @@ function SmsCenter() {
           </div>
         )}
 
-        {/* ================= TAB 4: SETTINGS ================= */}
         {activeTab === 'settings' && (
           <div className="max-w-2xl mx-auto">
             <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
@@ -607,6 +589,17 @@ function SmsCenter() {
                  </div>
               ) : (
                 <form onSubmit={handleSaveGateway} className="p-8 space-y-6">
+                  
+                  {gateway.smsProvider === 'twilio' && (
+                    <div className="bg-indigo-50 border border-indigo-100 p-4 rounded-xl flex items-start gap-3 text-indigo-800">
+                      <RadioTower className="w-5 h-5 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-bold">Twilio Sandbox Mode Active</p>
+                        <p className="text-xs mt-1 opacity-80">You must verify destination phone numbers in your Twilio console before sending messages during the trial period.</p>
+                      </div>
+                    </div>
+                  )}
+
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Select Provider</label>
                     <select 
@@ -615,6 +608,7 @@ function SmsCenter() {
                       onChange={(e) => setGateway({...gateway, smsProvider: e.target.value})}
                     >
                       <option value="none">None (Disabled)</option>
+                      <option value="twilio">Twilio (Free Trial / Sandbox)</option>
                       <option value="sslwireless">SSL Wireless</option>
                       <option value="bulksms">Bulk SMS BD</option>
                     </select>
@@ -622,12 +616,29 @@ function SmsCenter() {
 
                   {gateway.smsProvider !== 'none' && (
                     <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-300">
+                      
                       <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">API Key / Token</label>
+                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">
+                           {gateway.smsProvider === 'twilio' ? 'Account SID' : 'Client ID (CSMS ID)'}
+                        </label>
+                        <input 
+                          type="text" 
+                          required
+                          placeholder={gateway.smsProvider === 'twilio' ? "Enter Twilio Account SID" : "Enter Client ID"}
+                          className="w-full p-4 bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-500 rounded-xl font-bold text-slate-800 outline-none transition-all"
+                          value={gateway.smsClientId}
+                          onChange={(e) => setGateway({...gateway, smsClientId: e.target.value})}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">
+                           {gateway.smsProvider === 'twilio' ? 'Auth Token' : 'API Key / Token'}
+                        </label>
                         <input 
                           type="password" 
                           required
-                          placeholder="Enter your API Key"
+                          placeholder={gateway.smsProvider === 'twilio' ? "Enter Twilio Auth Token" : "Enter API Key"}
                           className="w-full p-4 bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-500 rounded-xl font-bold text-slate-800 outline-none transition-all"
                           value={gateway.smsApiKey}
                           onChange={(e) => setGateway({...gateway, smsApiKey: e.target.value})}
@@ -635,30 +646,19 @@ function SmsCenter() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Sender ID</label>
+                        <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">
+                           {gateway.smsProvider === 'twilio' ? 'Twilio Virtual Phone Number' : 'Sender ID'}
+                        </label>
                         <input 
                           type="text" 
                           required
-                          placeholder="e.g., 88096... or BRAND_NAME"
+                          placeholder={gateway.smsProvider === 'twilio' ? "e.g., +1234567890" : "e.g., BRAND_NAME"}
                           className="w-full p-4 bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-500 rounded-xl font-bold text-slate-800 outline-none transition-all"
                           value={gateway.smsSenderId}
                           onChange={(e) => setGateway({...gateway, smsSenderId: e.target.value})}
                         />
                       </div>
 
-                      {gateway.smsProvider === 'sslwireless' && (
-                        <div>
-                          <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">CSMS ID (Client ID)</label>
-                          <input 
-                            type="text" 
-                            required
-                            placeholder="Enter Client ID for SSL Wireless"
-                            className="w-full p-4 bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-500 rounded-xl font-bold text-slate-800 outline-none transition-all"
-                            value={gateway.smsClientId}
-                            onChange={(e) => setGateway({...gateway, smsClientId: e.target.value})}
-                          />
-                        </div>
-                      )}
                     </div>
                   )}
 

@@ -13,9 +13,10 @@ function Sidebar() {
     { name: 'History', path: '/attendance-history', icon: '⏳' }, 
     { name: 'Exams', path: '/exams', icon: '📋' },
     { name: 'Results', path: '/results', icon: '🏆' },
+    { name: 'OMR Generator', path: '/omr-generator', icon: '📑' }, // 🚀 নতুন OMR Generator মেনু যোগ করা হলো
     { name: 'Payments', path: '/payments', icon: '💰' },
     { name: 'Finances', path: '/finances', icon: '💳' }, 
-    { name: 'SMS Center', path: '/sms-center', icon: '💬' }, // 🚀 নতুন SMS Center মেনু যোগ করা হলো
+    { name: 'SMS Center', path: '/sms-center', icon: '💬' }, 
     { name: 'Settings', path: '/settings', icon: '⚙️' },
   ];
 
