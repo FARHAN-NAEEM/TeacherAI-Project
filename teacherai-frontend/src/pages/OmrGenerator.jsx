@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react'; //need to update this module
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import {
